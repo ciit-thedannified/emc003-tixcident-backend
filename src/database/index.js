@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 const {MongoDbConfiguration, MongoDbURI} = require("./db_config.js");
 const {UsersSchema} = require("./schemas/users_schema.js");
 const {IssuesSchema} = require("./schemas/issues_schema.js");
-const {FeedbacksSchema} = require("./schemas/feedback_schema");
+const {FeedbacksSchema} = require("./schemas/feedbacks_schema");
 
 let MONGOOSE_DATABASE = null;
 

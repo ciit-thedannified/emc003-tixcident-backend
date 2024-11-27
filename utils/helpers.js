@@ -1,9 +1,10 @@
 let Joi = require('joi');
 const {
     USERNAME_MIN_LENGTH, USERNAME_MAX_LENGTH, DISPLAY_NAME_MIN_LENGTH, DISPLAY_NAME_MAX_LENGTH,
-    ISSUE_TITLE_MIN_LENGTH, ISSUE_TITLE_MAX_LENGTH, ISSUE_DESCRIPTION_MIN_LENGTH
+    ISSUE_TITLE_MIN_LENGTH, ISSUE_TITLE_MAX_LENGTH, ISSUE_DESCRIPTION_MIN_LENGTH, FEEDBACK_TITLE_MIN_LENGTH,
+    FEEDBACK_TITLE_MAX_LENGTH, FEEDBACK_MESSAGE_MIN_LENGTH, FEEDBACK_MESSAGE_MAX_LENGTH
 } = require("./constants");
-const {PRIORITY_TYPES, STATUS_TYPES, USER_TYPES} = require("./enums");
+const {PRIORITY_TYPES, STATUS_TYPES, USER_TYPES, FEEDBACK_TYPES} = require("./enums");
 const mongoose = require("mongoose");
 
 /// Implementing 'objectId' type
@@ -25,6 +26,7 @@ Joi = Joi.extend(joi => ({
     }
 }));
 
+/// JOI USER SCHEMA
 const USER_CREATE_SCHEMA = Joi.object({
     // CUSTOM ID
     id: Joi.string()
@@ -52,6 +54,26 @@ const USER_CREATE_SCHEMA = Joi.object({
         .valid(...USER_TYPES),
 });
 
+const USER_UPDATE_SCHEMA = Joi.object({
+    username: Joi.string()
+        .alphanum()
+        .min(USERNAME_MIN_LENGTH)
+        .max(USERNAME_MAX_LENGTH),
+
+    email: Joi.string()
+        .email(),
+
+    displayName: Joi.string()
+        .min(DISPLAY_NAME_MIN_LENGTH)
+        .max(DISPLAY_NAME_MAX_LENGTH),
+
+    type: Joi.string()
+        .valid(...USER_TYPES),
+
+    permissions: Joi.string(),
+});
+
+/// JOI ISSUE SCHEMA
 const ISSUE_CREATE_SCHEMA = Joi.object({
     author: Joi.string()
         .alphanum()
@@ -103,26 +125,11 @@ const ISSUE_SEARCH_SCHEMA = Joi.object({
         .valid(...STATUS_TYPES),
 
     title: Joi.string(),
+
+    fromDate: Joi.date(),
+
+    toDate: Joi.date(),
 })
-
-const USER_UPDATE_SCHEMA = Joi.object({
-    username: Joi.string()
-        .alphanum()
-        .min(USERNAME_MIN_LENGTH)
-        .max(USERNAME_MAX_LENGTH),
-
-    email: Joi.string()
-        .email(),
-
-    displayName: Joi.string()
-        .min(DISPLAY_NAME_MIN_LENGTH)
-        .max(DISPLAY_NAME_MAX_LENGTH),
-
-    type: Joi.string()
-        .valid(...USER_TYPES),
-
-    permissions: Joi.string(),
-});
 
 const ISSUE_UPDATE_SCHEMA = Joi.object({
     staff: Joi.string()
@@ -138,6 +145,11 @@ const ISSUE_UPDATE_SCHEMA = Joi.object({
         .valid(...STATUS_TYPES),
 });
 
+const ISSUE_DELETE_SCHEMA = Joi.object({
+    issue_id: Joi.objectId().validateObjectId()
+        .required(),
+})
+
 const ISSUE_BULK_UPDATE_SCHEMA = Joi.object({
     issue_ids: Joi.array()
         .unique()
@@ -148,13 +160,61 @@ const ISSUE_BULK_UPDATE_SCHEMA = Joi.object({
         .required(),
 });
 
-const ISSUE_DELETE_SCHEMA = Joi.object({
-    issue_id: Joi.objectId().validateObjectId()
+const ISSUE_BULK_DELETE_SCHEMA = Joi.object({
+    issue_ids: Joi.array()
+        .unique()
+        .items(Joi.objectId().validateObjectId())
         .required(),
 })
 
-const ISSUE_BULK_DELETE_SCHEMA = Joi.object({
-    issue_ids: Joi.array()
+/// JOI FEEDBACK SCHEMA
+const FEEDBACK_CREATE_SCHEMA = Joi.object({
+    author: Joi.string()
+        .alphanum()
+        .required(),
+
+    title: Joi.string()
+        .min(FEEDBACK_TITLE_MIN_LENGTH)
+        .max(FEEDBACK_TITLE_MAX_LENGTH)
+        .required(),
+
+    type: Joi.string()
+        .valid(...FEEDBACK_TYPES),
+
+    message: Joi.string()
+        .min(FEEDBACK_MESSAGE_MIN_LENGTH)
+        .max(FEEDBACK_MESSAGE_MAX_LENGTH)
+        .required(),
+
+    rating: Joi.number()
+        .min(1)
+        .max(5)
+        .required(),
+
+    attachments: Joi.array()
+        .items(Joi.string()),
+});
+
+const FEEDBACK_SEARCH_SCHEMA = Joi.object({
+    author: Joi.string()
+        .alphanum(),
+
+    title: Joi.string(),
+
+    type: Joi.string()
+        .valid(...FEEDBACK_TYPES),
+
+    rating: Joi.number()
+        .min(1)
+        .max(5),
+
+    fromDate: Joi.date(),
+
+    toDate: Joi.date(),
+});
+
+const FEEDBACK_BULK_DELETE_SCHEMA = Joi.object({
+    feedback_ids: Joi.array()
         .unique()
         .items(Joi.objectId().validateObjectId())
         .required(),
@@ -163,10 +223,15 @@ const ISSUE_BULK_DELETE_SCHEMA = Joi.object({
 module.exports = {
     USER_CREATE_SCHEMA,
     USER_UPDATE_SCHEMA,
+
     ISSUE_CREATE_SCHEMA,
     ISSUE_SEARCH_SCHEMA,
     ISSUE_UPDATE_SCHEMA,
     ISSUE_BULK_UPDATE_SCHEMA,
     ISSUE_DELETE_SCHEMA,
     ISSUE_BULK_DELETE_SCHEMA,
+
+    FEEDBACK_CREATE_SCHEMA,
+    FEEDBACK_SEARCH_SCHEMA,
+    FEEDBACK_BULK_DELETE_SCHEMA,
 }
