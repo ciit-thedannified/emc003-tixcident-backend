@@ -15,7 +15,7 @@ const {boolean} = require("boolean");
 exports.getAllIssues = async function (req, res) {
     try {
         // Pagination query parameters
-        let {page = 0, items = 10} = req.query;
+        let {page = 1, items = 10} = req.query;
 
         // Getting all filters set in querying specific data.
         let filter = ISSUE_SEARCH_SCHEMA.validate(req.body);
