@@ -1,0 +1,8 @@
+{
+  "plugins": ["jsdoc"],
+  "rules": {
+    "jsdoc/check-alignment": "warn",
+    "jsdoc/check-param-names": "warn",
+    "jsdoc/check-types": "warn"
+  }
+}

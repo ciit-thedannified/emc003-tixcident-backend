@@ -1,0 +1,22 @@
+# Node.js dependencies
+node_modules/
+npm-debug.log*
+
+# Environment files
+.env
+.env.local
+
+# Logs
+logs/
+*.log
+
+# Build outputs
+dist/
+build/
+
+# Jest-related directories
+coverage
+
+# Sensitive files
+src/database/certificates
+/src/firebase/*.json
