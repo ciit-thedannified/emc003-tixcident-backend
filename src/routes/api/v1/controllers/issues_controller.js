@@ -1,10 +1,11 @@
 const {ISSUE_SEARCH_SCHEMA, ISSUE_CREATE_SCHEMA, ISSUE_UPDATE_SCHEMA, ISSUE_BULK_UPDATE_SCHEMA,
     ISSUE_BULK_DELETE_SCHEMA
 } = require("../../../../../utils/helpers");
-const {filterBuilder, regexpBuilder} = require("../../../../../utils/builders");
+const {filterBuilder, regexpBuilder, dateRangeBuilder} = require("../../../../../utils/builders");
 const issuesService = require("../services/issues_service.js");
 const isBoolean = require("validator/lib/isBoolean");
 const {boolean} = require("boolean");
+const {isEmpty} = require("lodash");
 
 /**
  * Fetches all existing issues in the database.
@@ -37,6 +38,8 @@ exports.getAllIssues = async function (req, res) {
             .appendField("tags", _filter?.tags, (value) => value !== undefined && value.length > 0 ? {$in: _filter?.tags} : undefined)
             .appendField("status", _filter?.status)
             .appendField("title", _filter?.title, (value) => value !== undefined ? regexpBuilder(new RegExp(`^${value}`, 'i')) : undefined)
+            .appendField("type", _filter?.type)
+            .appendField("createdAt", dateRangeBuilder(_filter?.fromDate, _filter?.toDate), value => !isEmpty(value) ? value : undefined)
             .build();
 
         let _query = await issuesService.findAllIssues(query, null, {
@@ -118,7 +121,6 @@ exports.createIssue = async function (req, res) {
 
         return res.sendStatus(201);
     } catch (e) {
-        console.error(e);
         return res
             .sendStatus(500);
     }
@@ -223,7 +225,7 @@ exports.deleteIssueById = async function (req, res) {
             return res
                 .status(400)
                 .json({
-                    message: "query 'hard' must be a boolean value."
+                    message: "query 'hardDelete' must be a boolean value."
                 });
 
         await issuesService.deleteIssueById(issue_id, boolean(hardDelete));
@@ -255,7 +257,7 @@ exports.deleteManyIssues = async function (req, res) {
             return res
                 .status(400)
                 .json({
-                    message: "'hardMode' must be a boolean value."
+                    message: "'hardDelete' must be a boolean value."
                 });
 
         payload = ISSUE_BULK_DELETE_SCHEMA.validate(req.body, {
