@@ -1,5 +1,6 @@
 const {describe, expect, test} = require("@jest/globals");
-const {filterBuilder} = require("../utils/builders");
+const {filterBuilder, regexpBuilder, dateRangeBuilder} = require("../utils/builders");
+const {ISSUE_SEARCH_SCHEMA} = require("../utils/helpers");
 
 
 describe('Testing filterBuilder', () => {
@@ -62,4 +63,45 @@ describe('Testing filterBuilder', () => {
         expect(__query.title).toBeInstanceOf(RegExp);
     });
 
+    test('building issues search query with fromDate and toDate, assigned to createdAt', () => {
+        let payload = {
+            fromDate: Date.now(),
+            toDate: Date.now(),
+        }
+
+        let filter = ISSUE_SEARCH_SCHEMA.validate(payload);
+
+        expect(filter.error).toBeUndefined();
+
+        let _filter = filter.value
+
+        let query = filterBuilder()
+
+        if (_filter?.fromDate !== undefined || _filter?.toDate !== undefined) {
+            query
+                .appendField("createdAt", {}, value => {
+                    if (_filter?.fromDate !== undefined) Object.assign(value, {$gte: _filter?.fromDate});
+                    if (_filter?.toDate !== undefined) Object.assign(value, {$lte: _filter?.toDate});
+
+                    return value;
+                });
+        }
+
+        query = query.build();
+
+        console.log(query.createdAt);
+    })
+
 })
+
+describe('testing dateRangeBuilder', () => {
+    test('inputting fromDate only', () => {
+        let payload = {
+            fromDate: '11-20-2024'
+        }
+
+        let dateRange = dateRangeBuilder(payload.fromDate);
+
+        expect(dateRange.$gte.valueOf()).toBeLessThanOrEqual(Date.now().valueOf());
+    })
+});

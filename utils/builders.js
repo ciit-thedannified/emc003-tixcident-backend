@@ -1,4 +1,4 @@
-function filterBuilder() {
+exports.filterBuilder = function () {
     const obj = {};
 
     return {
@@ -22,11 +22,15 @@ function filterBuilder() {
     };
 }
 
-function regexpBuilder(pattern) {
+exports.regexpBuilder = function (pattern) {
     return { $regex: pattern };
 }
 
-module.exports = {
-    filterBuilder,
-    regexpBuilder,
+exports.dateRangeBuilder = function (fromDate = null, toDate = null) {
+    let dateRange = {}
+
+    if (fromDate) Object.assign(dateRange, {$gte: new Date(fromDate)});
+    if (toDate) Object.assign(dateRange, {$lte: new Date(toDate)});
+
+    return dateRange;
 }
