@@ -1,6 +1,5 @@
 const {Document} = require('mongoose');
 const {IssueNotFound} = require("../../../utils/errors");
-const {onDocumentWithAuthorCreated} = require("./md_abstract_schema");
 const {IssueMessagesModel} = require("../schemas/issue_messages_schema");
 
 /// PRE HOOKS
@@ -27,9 +26,6 @@ exports.onIssueFind = async function (next) {
 
     return next();
 }
-
-// pre - 'save'
-exports.onIssueCreated = onDocumentWithAuthorCreated;
 
 // pre - 'deleteMany'
 exports.beforeBulkIssuesDeleted = async function (next) {

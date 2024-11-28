@@ -1,5 +1,4 @@
 const {model, Schema} = require('mongoose');
-const {onIssueMessageCreated, onIssueMessageFind} = require("../middlewares/md_issue_messages_schema");
 
 const IssueMessagesSchema = new Schema({
     issue_id: {
@@ -29,8 +28,6 @@ const IssueMessagesSchema = new Schema({
 IssueMessagesSchema.pre('find', onIssueMessageFind);
 
 IssueMessagesSchema.pre('findOne', onIssueMessageFind);
-
-IssueMessagesSchema.pre('save', onIssueMessageCreated);
 
 const IssueMessagesModel = model('issue-messages', IssueMessagesSchema);
 
