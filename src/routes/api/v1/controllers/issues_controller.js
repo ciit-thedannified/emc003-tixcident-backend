@@ -6,6 +6,7 @@ const issuesService = require("../services/issues_service.js");
 const isBoolean = require("validator/lib/isBoolean");
 const {boolean} = require("boolean");
 const {isEmpty} = require("lodash");
+const {UserTypes} = require("../../../../../utils/enums");
 
 /**
  * Fetches all existing issues in the database.
@@ -17,6 +18,7 @@ exports.getAllIssues = async function (req, res) {
     try {
         // Pagination query parameters
         let {page = 1, items = 10} = req.query;
+        let {user_id, user_role} = res.locals;
 
         // Getting all filters set in querying specific data.
         let filter = ISSUE_SEARCH_SCHEMA.validate(req.body);
@@ -29,6 +31,14 @@ exports.getAllIssues = async function (req, res) {
             });
 
         let _filter = filter.value;
+
+        if (user_role === UserTypes.User && (_filter?.author !== user_id || !_filter?.author)) {
+            return res
+                .status(403)
+                .json({
+                    message: "User can only request their own issue documents."
+                });
+        }
 
         // Building the query filter before requesting data.
         let query = filterBuilder()
@@ -68,6 +78,7 @@ exports.getAllIssues = async function (req, res) {
 exports.getIssueById = async function (req, res) {
     try {
         let {issue_id} = req.params;
+        let {user_id, user_role} = res.locals;
 
         // Querying specific issue by id
         let issue = await issuesService.findIssueById(issue_id);
@@ -78,6 +89,11 @@ exports.getIssueById = async function (req, res) {
                 .json({
                     message: `Issue ID ${issue_id} does not exist.`,
                 });
+
+        if (user_role === UserTypes.User && (issue['author']?.id !== user_id || !issue['author'])) {
+            return res
+                .sendStatus(404);
+        }
 
         // Provide the issue details to client.
         return res
@@ -109,6 +125,7 @@ exports.createIssue = async function (req, res) {
         let issue_data = ISSUE_CREATE_SCHEMA.validate(req.body, {
             allowUnknown: false, abortEarly: true,
         });
+        let {user_id} = res.locals;
 
         if (issue_data.error)
             return res
@@ -117,7 +134,7 @@ exports.createIssue = async function (req, res) {
                     message: 'Malformed/Invalid request.',
                 });
 
-        await issuesService.createIssue(issue_data.value);
+        await issuesService.createIssue({author: user_id, ...issue_data.value});
 
         return res.sendStatus(201);
     } catch (e) {

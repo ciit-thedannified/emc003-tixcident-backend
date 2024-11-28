@@ -1,4 +1,6 @@
 const FirebaseAdmin = require("../../../../firebase/firebase-admin.js");
+const usersService = require("../services/users_service");
+const {UserTypes} = require("../../../../../utils/enums");
 
 /**
  *
@@ -55,7 +57,7 @@ exports.verifyToken = async (req, res, next) => {
  */
 exports.getUserRole = async (req, res, next) => {
     try {
-        let user = await usersService.findUserById(res.locals.user_id, {type: 1});
+        let user = await usersService.findUserById(res.locals.user_id, {_id: 1, type: 1});
 
         if (!user)
             return res
@@ -65,7 +67,23 @@ exports.getUserRole = async (req, res, next) => {
                 });
 
         res.locals.user_role = user.type;
-        console.log(res.locals.user_role);
+
+        return next();
+    }
+    catch (e) {
+        return res
+            .sendStatus(500);
+    }
+}
+
+exports.checkAdminRole = async function (req, res, next) {
+    try {
+        let {user_role} = res.locals;
+
+        if (user_role !== UserTypes.Admin)
+            return res
+                .sendStatus(403);
+
         return next();
     }
     catch (e) {
