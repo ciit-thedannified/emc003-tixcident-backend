@@ -9,11 +9,19 @@ const FirebaseAdmin = require("../../../../firebase/firebase-admin.js");
  */
 exports.verifyToken = async (req, res, next) => {
     try {
-        const token = req.headers.authorization.split(' ')[1];
+        const authHeader = req.headers["authorization"];
+        let token;
+
+        if (!authHeader || !authHeader.startsWith("Bearer "))
+            return res
+                .status(401).json({message: "Missing or invalid Authorization header."});
+
+        token = authHeader.split(" ")[1];
+
         const decodedToken = await FirebaseAdmin.auth().verifyIdToken(token);
 
         if (decodedToken) {
-            res.locals.id = decodedToken.uid;
+            res.locals.user_id = decodedToken.uid;
             return next();
         }
 
@@ -34,9 +42,34 @@ exports.verifyToken = async (req, res, next) => {
 
         // Other exceptions
         return res
-            .status(500)
-            .json({
-                message: 'Internal Server Error.'
-            });
+            .sendStatus(500);
+    }
+};
+
+/**
+ *
+ * @param {Request} req
+ * @param {Response} res
+ * @param {NextFunction} next
+ * @returns {Promise<void>}
+ */
+exports.getUserRole = async (req, res, next) => {
+    try {
+        let user = await usersService.findUserById(res.locals.user_id, {type: 1});
+
+        if (!user)
+            return res
+                .status(401)
+                .json({
+                    message: "Unknown user."
+                });
+
+        res.locals.user_role = user.type;
+        console.log(res.locals.user_role);
+        return next();
+    }
+    catch (e) {
+        return res
+            .sendStatus(500);
     }
 }
