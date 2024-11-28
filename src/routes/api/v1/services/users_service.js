@@ -18,7 +18,7 @@ exports.findAllUsers = async function (filters, projections = {}, options = {}) 
  * @param {ProjectionType} projections
  * @param {QueryOptions} options
  */
-exports.findIssueById = async function (user_id, projections = {}, options = {}) {
+exports.findUserById = async function (user_id, projections = {}, options = {}) {
     return UsersModel.findById(user_id, projections, {maxTimeMS: DEFAULT_MAX_TIME_MS, ...options});
 }
 

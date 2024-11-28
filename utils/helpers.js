@@ -54,6 +54,20 @@ const USER_CREATE_SCHEMA = Joi.object({
         .valid(...USER_TYPES),
 });
 
+const USER_SEARCH_SCHEMA = Joi.object({
+    username: Joi.string()
+        .alphanum()
+        .min(USERNAME_MIN_LENGTH)
+        .max(USERNAME_MAX_LENGTH),
+
+    email: Joi.string(),
+
+    displayName: Joi.string(),
+
+    type: Joi.string()
+        .valid(...USER_TYPES),
+});
+
 const USER_UPDATE_SCHEMA = Joi.object({
     username: Joi.string()
         .alphanum()
@@ -69,8 +83,6 @@ const USER_UPDATE_SCHEMA = Joi.object({
 
     type: Joi.string()
         .valid(...USER_TYPES),
-
-    permissions: Joi.string(),
 });
 
 /// JOI ISSUE SCHEMA
@@ -222,6 +234,7 @@ const FEEDBACK_BULK_DELETE_SCHEMA = Joi.object({
 
 module.exports = {
     USER_CREATE_SCHEMA,
+    USER_SEARCH_SCHEMA,
     USER_UPDATE_SCHEMA,
 
     ISSUE_CREATE_SCHEMA,
