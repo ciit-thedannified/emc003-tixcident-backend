@@ -7,6 +7,9 @@ exports.onIssueMessageFind = async function (next) {
         .select('-__v -updatedAt')
         .populate({
             path: "author",
+            model: 'users',
+            localField: 'author',
+            foreignField: 'id',
             select: "-createdAt -updatedAt -__v -email -_id",
             options: {}
         });

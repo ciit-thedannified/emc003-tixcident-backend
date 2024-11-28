@@ -12,10 +12,16 @@ exports.onIssueFind = async function (next) {
         .select('-__v -isDeleted -deletedAt')
         .populate({
             path: 'author',
+            model: 'users',
+            localField: 'author',
+            foreignField: 'id',
             select: '-createdAt -updatedAt -__v -email -_id',
         })
         .populate({
             path: 'staff',
+            model: 'users',
+            localField: 'staff',
+            foreignField: 'id',
             select: '-createdAt -updatedAt -__v -email -_id',
         });
 
