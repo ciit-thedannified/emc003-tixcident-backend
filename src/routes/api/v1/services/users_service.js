@@ -19,7 +19,9 @@ exports.findAllUsers = async function (filters, projections = {}, options = {}) 
  * @param {QueryOptions} options
  */
 exports.findUserById = async function (user_id, projections = {}, options = {}) {
-    return UsersModel.findById(user_id, projections, {maxTimeMS: DEFAULT_MAX_TIME_MS, ...options});
+    return UsersModel.findOne({
+        id: user_id,
+    }, projections, {maxTimeMS: DEFAULT_MAX_TIME_MS, ...options});
 }
 
 /**
@@ -31,21 +33,16 @@ exports.createUser = async function (user_data) {
     return UsersModel.create(user_data);
 }
 
-exports.updateUserById = async function (user_data, new_user_data) {
-    return UsersModel.findByIdAndUpdate(user_data, {
+exports.updateUserById = async function (user_id, new_user_data) {
+    return UsersModel.findOneAndUpdate({
+        id: user_id,
+    }, {
         $set: new_user_data,
     }, {new: true});
 }
 
-exports.deleteUserById = async function (user_id, hardDelete = false) {
-    if (hardDelete) {   // Perform hard delete (permanent deletion) if true
-        return UsersModel.findByIdAndDelete(user_id);
-    }
-
-    return UsersModel.findByIdAndUpdate(user_id, {
-        $set: {
-            isDeleted: true,
-            deletedAt: Date.now(),
-        }
+exports.deleteUserById = async function (user_id) {
+    return UsersModel.findOneAndDelete({
+        id: user_id,
     });
 }
