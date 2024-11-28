@@ -35,9 +35,9 @@ exports.getAllIssues = async function (req, res) {
             .appendField("author", _filter?.author)
             .appendField("staff", _filter?.staff)
             .appendField("priority", _filter?.priority)
-            .appendField("tags", _filter?.tags, (value) => value.length > 0 ? {$in: _filter?.tags} : undefined)
+            .appendField("tags", _filter?.tags, (value) => value !== undefined && value.length > 0 ? {$in: _filter?.tags} : undefined)
             .appendField("status", _filter?.status)
-            .appendField("title", _filter?.title, (value) => value.length > 0 ? regexpBuilder(new RegExp(`^${value}`, 'i')) : undefined)
+            .appendField("title", _filter?.title, (value) => value !== undefined ? regexpBuilder(new RegExp(`^${value}`, 'i')) : undefined)
             .appendField("type", _filter?.type)
             .appendField("createdAt", dateRangeBuilder(_filter?.fromDate, _filter?.toDate), value => !isEmpty(value) ? value : undefined)
             .build();
@@ -277,8 +277,6 @@ exports.deleteManyIssues = async function (req, res) {
             .sendStatus(204)
     }
     catch (e) {
-        console.error(e);
-
         return res
             .sendStatus(500);
     }
