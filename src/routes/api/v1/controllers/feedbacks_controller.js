@@ -163,7 +163,7 @@ exports.deleteManyFeedbacks = async function (req, res) {
                     message: payload.error.message,
                 })
 
-        await feedbacksService.bulkDeleteFeedbacks(payload.value.issue_ids, boolean(hardDelete));
+        await feedbacksService.bulkDeleteFeedbacks(payload.value.feedback_ids, boolean(hardDelete));
 
         return res
             .sendStatus(204)

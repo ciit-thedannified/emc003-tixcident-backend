@@ -23,3 +23,19 @@ exports.onFeedbackCreated = async function (next) {
     this.author = new ObjectId(_id);
     return next();
 }
+
+/**
+ * @param {NextFunction} next
+ * @returns {Promise<*>}
+ */
+exports.onFeedbackFind = async function (next) {
+    this
+        .where({isDeleted: false})
+        .select('-__v -isDeleted -deletedAt')
+        .populate({
+            path: 'author',
+            select: '-createdAt -updatedAt -__v -email -_id',
+        });
+
+    return next();
+}

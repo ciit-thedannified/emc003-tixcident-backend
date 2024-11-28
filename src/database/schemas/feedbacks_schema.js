@@ -1,6 +1,6 @@
 const {model, Schema} = require('mongoose');
 const {FEEDBACK_TITLE_MIN_LENGTH, FEEDBACK_TITLE_MAX_LENGTH, FEEDBACK_MESSAGE_MIN_LENGTH, FEEDBACK_MESSAGE_MAX_LENGTH} = require("../../../utils/constants");
-const {onFeedbackCreated} = require("../middlewares/md_feedbacks_schema");
+const {onFeedbackCreated, onFeedbackFind} = require("../middlewares/md_feedbacks_schema");
 const {FEEDBACK_TYPES, FeedbackTypes} = require("../../../utils/enums");
 
 const FeedbacksSchema = new Schema({
@@ -58,6 +58,10 @@ const FeedbacksSchema = new Schema({
 });
 
 FeedbacksSchema.pre('save', onFeedbackCreated);
+
+FeedbacksSchema.pre('find', onFeedbackFind);
+
+FeedbacksSchema.pre('findOne', onFeedbackFind);
 
 const FeedbacksModel = model('feedbacks', FeedbacksSchema);
 
