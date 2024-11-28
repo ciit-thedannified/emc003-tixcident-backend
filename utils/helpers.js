@@ -2,7 +2,8 @@ let Joi = require('joi');
 const {
     USERNAME_MIN_LENGTH, USERNAME_MAX_LENGTH, DISPLAY_NAME_MIN_LENGTH, DISPLAY_NAME_MAX_LENGTH,
     ISSUE_TITLE_MIN_LENGTH, ISSUE_TITLE_MAX_LENGTH, ISSUE_DESCRIPTION_MIN_LENGTH, FEEDBACK_TITLE_MIN_LENGTH,
-    FEEDBACK_TITLE_MAX_LENGTH, FEEDBACK_MESSAGE_MIN_LENGTH, FEEDBACK_MESSAGE_MAX_LENGTH
+    FEEDBACK_TITLE_MAX_LENGTH, FEEDBACK_MESSAGE_MIN_LENGTH, FEEDBACK_MESSAGE_MAX_LENGTH, ISSUE_MESSAGE_MIN_LENGTH,
+    ISSUE_MESSAGE_MAX_LENGTH
 } = require("./constants");
 const {PRIORITY_TYPES, STATUS_TYPES, USER_TYPES, FEEDBACK_TYPES} = require("./enums");
 const mongoose = require("mongoose");
@@ -232,6 +233,20 @@ const FEEDBACK_BULK_DELETE_SCHEMA = Joi.object({
         .required(),
 })
 
+// JOI ISSUE_MESSAGE SCHEMA
+const ISSUE_MESSAGE_CREATE_SCHEMA = Joi.object({
+    author: Joi.string()
+        .required(),
+
+    message: Joi.string()
+        .min(ISSUE_MESSAGE_MIN_LENGTH)
+        .max(ISSUE_MESSAGE_MAX_LENGTH)
+        .required(),
+
+    attachments: Joi.array()
+        .items(Joi.string()),
+});
+
 module.exports = {
     USER_CREATE_SCHEMA,
     USER_SEARCH_SCHEMA,
@@ -247,4 +262,6 @@ module.exports = {
     FEEDBACK_CREATE_SCHEMA,
     FEEDBACK_SEARCH_SCHEMA,
     FEEDBACK_BULK_DELETE_SCHEMA,
+
+    ISSUE_MESSAGE_CREATE_SCHEMA,
 }
