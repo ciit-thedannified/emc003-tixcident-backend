@@ -5,7 +5,7 @@ const {
     FEEDBACK_TITLE_MAX_LENGTH, FEEDBACK_MESSAGE_MIN_LENGTH, FEEDBACK_MESSAGE_MAX_LENGTH, ISSUE_MESSAGE_MIN_LENGTH,
     ISSUE_MESSAGE_MAX_LENGTH
 } = require("./constants");
-const {PRIORITY_TYPES, STATUS_TYPES, USER_TYPES, FEEDBACK_TYPES} = require("./enums");
+const {PRIORITY_TYPES, STATUS_TYPES, USER_TYPES, FEEDBACK_TYPES, ISSUE_TYPES} = require("./enums");
 const mongoose = require("mongoose");
 
 /// Implementing 'objectId' type
@@ -88,9 +88,9 @@ const USER_UPDATE_SCHEMA = Joi.object({
 
 /// JOI ISSUE SCHEMA
 const ISSUE_CREATE_SCHEMA = Joi.object({
-    author: Joi.string()
+    /*author: Joi.string()
         .alphanum()
-        .required(),
+        .required(),*/
 
     staff: Joi.string()
         .alphanum(),
@@ -117,8 +117,8 @@ const ISSUE_CREATE_SCHEMA = Joi.object({
     attachments: Joi.array()
         .items(Joi.string()),
 
-    comments: Joi.array()
-        .items(Joi.string()),
+    type: Joi.string()
+        .valid(...ISSUE_TYPES),
 });
 
 const ISSUE_SEARCH_SCHEMA = Joi.object({
@@ -182,9 +182,9 @@ const ISSUE_BULK_DELETE_SCHEMA = Joi.object({
 
 /// JOI FEEDBACK SCHEMA
 const FEEDBACK_CREATE_SCHEMA = Joi.object({
-    author: Joi.string()
+    /*author: Joi.string()
         .alphanum()
-        .required(),
+        .required(),*/
 
     title: Joi.string()
         .min(FEEDBACK_TITLE_MIN_LENGTH)
@@ -235,8 +235,8 @@ const FEEDBACK_BULK_DELETE_SCHEMA = Joi.object({
 
 // JOI ISSUE_MESSAGE SCHEMA
 const ISSUE_MESSAGE_CREATE_SCHEMA = Joi.object({
-    author: Joi.string()
-        .required(),
+    /*author: Joi.string()
+        .required(),*/
 
     message: Joi.string()
         .min(ISSUE_MESSAGE_MIN_LENGTH)
