@@ -1,7 +1,3 @@
-const {onDocumentWithAuthorCreated} = require("./md_abstract_schema");
-
-exports.onIssueMessageCreated = onDocumentWithAuthorCreated;
-
 exports.onIssueMessageFind = async function (next) {
     this
         .select('-__v -updatedAt')

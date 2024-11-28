@@ -57,8 +57,6 @@ const FeedbacksSchema = new Schema({
     timestamps: true,
 });
 
-FeedbacksSchema.pre('save', onFeedbackCreated);
-
 FeedbacksSchema.pre('find', onFeedbackFind);
 
 FeedbacksSchema.pre('findOne', onFeedbackFind);

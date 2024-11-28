@@ -85,8 +85,6 @@ IssuesSchema.pre('find', onIssueFind);
 
 IssuesSchema.pre('findOne', onIssueFind)
 
-IssuesSchema.pre('save', onIssueCreated);
-
 IssuesSchema.pre('deleteMany', beforeBulkIssuesDeleted)
 
 IssuesSchema.post('findOne', isIssueDeleted);

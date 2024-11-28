@@ -30,8 +30,6 @@ IssueMessagesSchema.pre('find', onIssueMessageFind);
 
 IssueMessagesSchema.pre('findOne', onIssueMessageFind);
 
-IssueMessagesSchema.pre('save', onIssueMessageCreated);
-
 const IssueMessagesModel = model('issue-messages', IssueMessagesSchema);
 
 module.exports = {
