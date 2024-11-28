@@ -53,14 +53,6 @@ const UsersSchema = new Schema(
             },
             default: USER_TYPES[0]
         },
-        isDeleted: {
-            type: Schema.Types.Boolean,
-            default: false,
-        },
-        deletedAt: {
-            type: Schema.Types.Date,
-            default: null,
-        }
     },
     {
         timestamps: true,
@@ -69,7 +61,7 @@ const UsersSchema = new Schema(
 
 UsersSchema.pre('find', async function(next) {
     this
-        .select('-__v -isDeleted -deletedAt');
+        .select('-__v');
     return next();
 });
 

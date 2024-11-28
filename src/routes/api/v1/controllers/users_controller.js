@@ -1,10 +1,7 @@
 const usersService = require('../services/users_service');
 const {USER_SEARCH_SCHEMA, USER_CREATE_SCHEMA, USER_UPDATE_SCHEMA} = require("../../../../../utils/helpers");
 const {filterBuilder, regexpBuilder} = require("../../../../../utils/builders");
-const {UsersModel} = require("../../../../database/schemas/users_schema");
-const isBoolean = require("validator/lib/isBoolean");
-const issuesService = require("../services/issues_service");
-const {boolean} = require("boolean");
+const FirebaseAdmin = require("../../../../firebase/firebase-admin");
 
 /**
  *
@@ -154,24 +151,17 @@ exports.updateUserById = async function (req, res) {
  */
 exports.deleteUserById = async function (req, res) {
     try {
-        let {hardDelete = "false"} = req.query;
         let {user_id} = req.params;
 
-        if (!isBoolean(hardDelete))
-            return res
-                .status(400)
-                .json({
-                    message: "query 'hardDelete' must be a boolean value."
-                });
-
-        await usersService.deleteUserById(user_id, boolean(hardDelete));
+        await usersService.deleteUserById(user_id);
+        await FirebaseAdmin.auth().deleteUser(user_id)
+            .catch(e => null); // ignore if user is already deleted to Firebase Auth database.
 
         return res
             .sendStatus(204);
     }
     catch (e) {
         console.error(e);
-
         return res
             .sendStatus(500);
     }
