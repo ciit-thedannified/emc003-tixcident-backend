@@ -3,6 +3,7 @@ const {MongoDbConfiguration, MongoDbURI} = require("./db_config.js");
 const {UsersSchema} = require("./schemas/users_schema.js");
 const {IssuesSchema} = require("./schemas/issues_schema.js");
 const {FeedbacksSchema} = require("./schemas/feedbacks_schema");
+const {IssueMessagesSchema} = require("./schemas/issue_messages_schema");
 
 let MONGOOSE_DATABASE = null;
 
@@ -23,6 +24,7 @@ async function getConnection() {
         mongoose.model('users', UsersSchema);
         mongoose.model('issues', IssuesSchema);
         mongoose.model('feedbacks', FeedbacksSchema);
+        mongoose.model('issue-messages', IssueMessagesSchema);
     }
 
     return MONGOOSE_DATABASE;
