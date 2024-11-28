@@ -1,7 +1,7 @@
 const {model, Schema} = require("mongoose");
 const {PRIORITY_TYPES, STATUS_TYPES} = require("../../../utils/enums.js");
 const {ISSUE_TITLE_MAX_LENGTH, ISSUE_TITLE_MIN_LENGTH} = require("../../../utils/constants.js");
-const {isIssueDeleted, onIssueCreated, onIssueFind} = require("../middlewares/md_issues_schema");
+const {isIssueDeleted, onIssueCreated, onIssueFind, onIssueDeleted, beforeBulkIssuesDeleted, onBulkIssuesDeleted} = require("../middlewares/md_issues_schema");
 const {ISSUE_TYPES, IssueTypes, PriorityTypes, StatusTypes} = require("../../../utils/enums");
 
 const IssuesSchema = new Schema(
@@ -87,9 +87,15 @@ IssuesSchema.pre('findOne', onIssueFind)
 
 IssuesSchema.pre('save', onIssueCreated);
 
+IssuesSchema.pre('deleteMany', beforeBulkIssuesDeleted)
+
 IssuesSchema.post('findOne', isIssueDeleted);
 
 IssuesSchema.post( 'findOneAndUpdate', isIssueDeleted);
+
+IssuesSchema.post('findOneAndDelete', onIssueDeleted);
+
+IssuesSchema.post('deleteMany', onBulkIssuesDeleted);
 
 const IssuesModel = model('issues', IssuesSchema);
 

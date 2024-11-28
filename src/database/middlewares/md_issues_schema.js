@@ -1,9 +1,7 @@
 const {Document} = require('mongoose');
-const {UsersModel} = require("../schemas/users_schema");
-const {DEFAULT_MAX_TIME_MS} = require("../../../utils/constants");
-const {ObjectId} = require("mongodb");
 const {IssueNotFound} = require("../../../utils/errors");
 const {onDocumentWithAuthorCreated} = require("./md_abstract_schema");
+const {IssueMessagesModel} = require("../schemas/issue_messages_schema");
 
 /// PRE HOOKS
 
@@ -27,6 +25,14 @@ exports.onIssueFind = async function (next) {
 // pre - 'save'
 exports.onIssueCreated = onDocumentWithAuthorCreated;
 
+// pre - 'deleteMany'
+exports.beforeBulkIssuesDeleted = async function (next) {
+    let filter = this.getFilter();
+
+    this._targetIssueIds = await this.model.find(filter).select('_id');
+    next();
+}
+
 /// POST HOOKS
 
 // post - 'findOne', 'findOneAndUpdate'
@@ -47,3 +53,34 @@ exports.isIssueDeleted = async function (doc, next) {
     return next();
 }
 
+// post - 'findOneAndDelete'
+/**
+ * @param {Document} doc
+ * @param {NextFunction} next
+ * @returns {Promise<*>}
+ */
+exports.onIssueDeleted = async function (doc, next) {
+    let {_id} = doc;
+
+    await IssueMessagesModel.deleteMany({
+        issue_id: _id,
+    });
+
+    return next();
+}
+
+// post - 'deleteMany'
+/**
+ * @param {Document} doc
+ * @param {NextFunction} next
+ * @returns {Promise<*>}
+ */
+exports.onBulkIssuesDeleted = async function (doc, next) {
+    if (this._targetIssueIds && this._targetIssueIds.length > 0) {
+        const issue_ids = this._targetIssueIds.map(issue => issue._id);
+
+        await IssueMessagesModel.deleteMany({ issue_id: { $in: issue_ids } });
+    }
+
+    next();
+}
