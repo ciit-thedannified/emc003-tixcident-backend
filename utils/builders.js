@@ -7,6 +7,11 @@ exports.filterBuilder = function () {
                 throw new Error("Key must be a string");
             }
 
+            // Ignore undefined and null initial values
+            if (value === undefined || value === null) {
+                return this;
+            }
+
             // Apply the transform function if provided, otherwise use the original value
             const finalValue = typeof transform === "function" ? transform(value) : value;
 
