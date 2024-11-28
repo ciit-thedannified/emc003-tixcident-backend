@@ -7,7 +7,7 @@ const {Router} = require('express');
 const issueMessagesController = require('../controllers/issue_messages_controller');
 
 const API_V1_ISSUES_MESSAGES = Router({
-    strict: true, caseSensitive: true,
+    strict: false, caseSensitive: true,
 });
 
 API_V1_ISSUES_MESSAGES.get('/', issueMessagesController.getAllIssueMessages)

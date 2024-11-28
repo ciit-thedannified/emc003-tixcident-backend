@@ -8,7 +8,7 @@ const {Router} = require('express');
 const issuesController = require("../controllers/issues_controller");
 
 const API_V1_ISSUES = Router({
-    strict: true, caseSensitive: true,
+    strict: false, caseSensitive: true,
 });
 
 /**
@@ -45,8 +45,5 @@ API_V1_ISSUES.delete('/bulk', issuesController.deleteManyIssues);
  * Deletes an existing issue by marking them as 'deleted' (soft delete)
  */
 API_V1_ISSUES.delete('/:issue_id', issuesController.deleteIssueById);
-
-
-
 
 module.exports = API_V1_ISSUES;

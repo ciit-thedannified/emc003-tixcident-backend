@@ -9,7 +9,7 @@ const {ISSUE_MESSAGE_CREATE_SCHEMA} = require("../../../../../utils/helpers");
  */
 exports.getAllIssueMessages = async function (req, res) {
     try {
-        let {issue_id} = req.params;
+        let issue_id = res.locals.issue_id;
         let {page = 1, items = 15} = req.query;
 
         let _query = await issueMessagesService.findAllIssueMessages({
@@ -37,7 +37,8 @@ exports.getAllIssueMessages = async function (req, res) {
  */
 exports.getIssueMessageById = async function (req, res) {
     try {
-        const {issue_id, message_id} = req.params;
+        let issue_id = res.locals.issue_id;
+        const {message_id} = req.params;
 
         let issue_message = await issueMessagesService.findIssueMessageById(issue_id, message_id);
 
@@ -66,7 +67,7 @@ exports.getIssueMessageById = async function (req, res) {
  */
 exports.createIssueMessage = async function (req, res) {
     try {
-        let {issue_id} = req.params;
+        let issue_id = res.locals.issue_id;
         let message_data = ISSUE_MESSAGE_CREATE_SCHEMA.validate(req.body);
 
         if (message_data.error)
@@ -76,7 +77,7 @@ exports.createIssueMessage = async function (req, res) {
                     message: 'Malformed/Invalid request.'
                 });
 
-        await issueMessagesService.createIssueMessage(issue_id, message_data);
+        await issueMessagesService.createIssueMessage(issue_id, message_data.value);
 
         return res.sendStatus(201);
     }
@@ -94,7 +95,7 @@ exports.createIssueMessage = async function (req, res) {
  */
 exports.deleteAllIssueMessages = async function (req, res) {
     try {
-        let {issue_id} = req.params;
+        let issue_id = res.locals.issue_id;
 
         await issueMessagesService.deleteAllIssueMessages(issue_id);
 
@@ -115,7 +116,8 @@ exports.deleteAllIssueMessages = async function (req, res) {
  */
 exports.deleteIssueMessageById = async function (req, res) {
     try {
-        let {issue_id, message_id} = req.params;
+        let issue_id = res.locals.issue_id;
+        let {message_id} = req.params;
 
         await issueMessagesService.deleteIssueMessageById(issue_id, message_id);
 

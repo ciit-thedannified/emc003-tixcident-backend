@@ -10,8 +10,11 @@ const API_V1_ROUTER = Router({
 })
 
 API_V1_ROUTER.use('/users', API_V1_USERS);
-API_V1_ROUTER.use ('/issues/:issue_id/messages', API_V1_ISSUES_MESSAGES);
 API_V1_ROUTER.use('/issues', API_V1_ISSUES);
+API_V1_ROUTER.use ('/issues/:issue_id/messages', async (req, res, next) => {
+    res.locals.issue_id = req.params.issue_id;
+    next();
+}, API_V1_ISSUES_MESSAGES);
 API_V1_ROUTER.use('/feedbacks', API_V1_FEEDBACKS);
 
 module.exports = API_V1_ROUTER;
