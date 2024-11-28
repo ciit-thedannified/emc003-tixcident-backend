@@ -1,6 +1,7 @@
 const {model, Schema} = require('mongoose');
 const {FEEDBACK_TITLE_MIN_LENGTH, FEEDBACK_TITLE_MAX_LENGTH, FEEDBACK_MESSAGE_MIN_LENGTH, FEEDBACK_MESSAGE_MAX_LENGTH} = require("../../../utils/constants");
 const {FEEDBACK_TYPES, FeedbackTypes} = require("../../../utils/enums");
+const {onFeedbackFind} = require("../middlewares/md_feedbacks_schema");
 
 const FeedbacksSchema = new Schema({
     author: {

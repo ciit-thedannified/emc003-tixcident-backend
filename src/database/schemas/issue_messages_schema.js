@@ -1,4 +1,5 @@
 const {model, Schema} = require('mongoose');
+const {onIssueMessageFind} = require("../middlewares/md_issue_messages_schema");
 
 const IssueMessagesSchema = new Schema({
     issue_id: {
