@@ -21,7 +21,7 @@ const StatusTypes = Object.freeze({
 const IssueTypes = Object.freeze({
     None: "NONE",
     Bug: "BUG",
-    Feature: "FEATURE_REQUEST",
+    FeatureRequest: "FEATURE_REQUEST",
     Help: "HELP",
     Incident: "INCIDENT",
     ServiceRequest: "SERVICE_REQUEST",
