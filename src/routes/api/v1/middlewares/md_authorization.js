@@ -109,7 +109,7 @@ exports.checkAdminRole = async function (req, res, next) {
  */
 exports.checkIssueAuthor = async function (req, res, next) {
     try {
-        let {user_role, user_id, issue_id} = res.locals.issue_id;
+        let {user_role, user_id, issue_id} = res.locals;
         let issue = await issuesService.findIssueById(issue_id, {author: 1});
 
         if (user_role === UserTypes.Admin)
@@ -123,6 +123,11 @@ exports.checkIssueAuthor = async function (req, res, next) {
         return next();
     }
     catch (e) {
+        if (e.code === '40001' || e.code === '40002') {
+            return res
+                .sendStatus(403);
+        }
+
         return res
             .sendStatus(500);
     }

@@ -78,7 +78,7 @@ exports.getAllIssues = async function (req, res) {
  */
 exports.getIssueById = async function (req, res) {
     try {
-        let {issue_id} = req.params;
+        let {issue_id} = res.locals;
         let {user_id, user_role} = res.locals;
 
         // Querying specific issue by id
