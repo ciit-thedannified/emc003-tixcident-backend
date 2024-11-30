@@ -123,6 +123,11 @@ exports.checkIssueAuthor = async function (req, res, next) {
         return next();
     }
     catch (e) {
+        if (e.code === '40001' || e.code === '40002') {
+            return res
+                .sendStatus(403);
+        }
+
         return res
             .sendStatus(500);
     }
