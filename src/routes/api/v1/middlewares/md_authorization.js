@@ -1,5 +1,6 @@
 const FirebaseAdmin = require("../../../../firebase/firebase-admin.js");
 const usersService = require("../services/users_service");
+const issuesService = require("../services/issues_service");
 const {UserTypes} = require("../../../../../utils/enums");
 
 /**
@@ -76,6 +77,13 @@ exports.getUserRole = async (req, res, next) => {
     }
 }
 
+/**
+ *
+ * @param {Request} req
+ * @param {Response} res
+ * @param {NextFunction} next
+ * @returns {Promise<void>}
+ */
 exports.checkAdminRole = async function (req, res, next) {
     try {
         let {user_role} = res.locals;
@@ -83,6 +91,34 @@ exports.checkAdminRole = async function (req, res, next) {
         if (user_role !== UserTypes.Admin)
             return res
                 .sendStatus(403);
+
+        return next();
+    }
+    catch (e) {
+        return res
+            .sendStatus(500);
+    }
+}
+
+/**
+ *
+ * @param {Request} req
+ * @param {Response} res
+ * @param {NextFunction} next
+ * @returns {Promise<void>}
+ */
+exports.checkIssueAuthor = async function (req, res, next) {
+    try {
+        let {user_role, user_id, issue_id} = res.locals.issue_id;
+        let issue = await issuesService.findIssueById(issue_id, {author: 1});
+
+        if (user_role === UserTypes.Admin)
+            return next();
+
+        if (!issue || issue['author'] !== user_id) {
+            return res
+                .sendStatus(403);
+        }
 
         return next();
     }
