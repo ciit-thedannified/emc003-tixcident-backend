@@ -1,5 +1,6 @@
 const issueMessagesService = require('../services/issue_messages_service');
 const {ISSUE_MESSAGE_CREATE_SCHEMA} = require("../../../../../utils/helpers");
+const {DEFAULT_PAGINATION_PAGE, DEFAULT_PAGINATION_ITEMS} = require("../../../../../utils/constants");
 
 /**
  *
@@ -10,7 +11,7 @@ const {ISSUE_MESSAGE_CREATE_SCHEMA} = require("../../../../../utils/helpers");
 exports.getAllIssueMessages = async function (req, res) {
     try {
         let issue_id = res.locals.issue_id;
-        let {page = 1, items = 15} = req.query;
+        let {page = DEFAULT_PAGINATION_PAGE, items = DEFAULT_PAGINATION_ITEMS} = req.query;
 
         let _query = await issueMessagesService.findAllIssueMessages({
             issue_id: issue_id,

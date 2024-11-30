@@ -2,6 +2,7 @@ const usersService = require('../services/users_service');
 const {USER_SEARCH_SCHEMA, USER_CREATE_SCHEMA, USER_UPDATE_SCHEMA} = require("../../../../../utils/helpers");
 const {filterBuilder, regexpBuilder} = require("../../../../../utils/builders");
 const FirebaseAdmin = require("../../../../firebase/firebase-admin");
+const {DEFAULT_PAGINATION_PAGE, DEFAULT_PAGINATION_ITEMS} = require("../../../../../utils/constants");
 
 /**
  *
@@ -11,7 +12,7 @@ const FirebaseAdmin = require("../../../../firebase/firebase-admin");
  */
 exports.getAllUsers = async function (req, res) {
     try {
-        let {page = 1, items = 10} = req.params;
+        let {page = DEFAULT_PAGINATION_PAGE, items = DEFAULT_PAGINATION_ITEMS} = req.params;
 
         let filter = USER_SEARCH_SCHEMA.validate(req.body);
 
@@ -103,7 +104,6 @@ exports.createUser = async (req, res) => {
         return res
             .sendStatus(201);
     } catch (e) {
-        console.error(e);
         return res
             .sendStatus(500);
     }
@@ -161,7 +161,6 @@ exports.deleteUserById = async function (req, res) {
             .sendStatus(204);
     }
     catch (e) {
-        console.error(e);
         return res
             .sendStatus(500);
     }

@@ -7,6 +7,8 @@ const {
 const {isEmpty} = require("lodash");
 const isBoolean = require("validator/lib/isBoolean");
 const {boolean} = require("boolean");
+const {UserTypes} = require("../../../../../utils/enums");
+const {DEFAULT_PAGINATION_PAGE, DEFAULT_PAGINATION_ITEMS} = require("../../../../../utils/constants");
 
 /**
  *
@@ -16,7 +18,8 @@ const {boolean} = require("boolean");
  */
 exports.getAllFeedbacks = async function (req, res) {
     try {
-        let {page = 1, items = 10} = req.query;
+        let {page = DEFAULT_PAGINATION_PAGE, items = DEFAULT_PAGINATION_ITEMS} = req.query;
+        let {user_id, user_role} = res.locals;
 
         let filter = FEEDBACK_SEARCH_SCHEMA.validate(req.body);
 
@@ -27,8 +30,15 @@ exports.getAllFeedbacks = async function (req, res) {
                     message: 'Malformed/Invalid request.'
                 });
 
-
         let _filter = filter.value;
+
+        if (user_role === UserTypes.User && (_filter?.author !== user_id || !_filter?.author)) {
+            return res
+                .status(403)
+                .json({
+                    message: "User can only request their own feedback documents."
+                });
+        }
 
         let query = filterBuilder()
             .appendField("author", _filter?.author)
@@ -61,6 +71,7 @@ exports.getAllFeedbacks = async function (req, res) {
 exports.getFeedbackById = async function (req, res) {
     try {
         const {feedback_id} = req.params;
+        let {user_id, user_role} = res.locals;
 
         let feedback = await feedbacksService.findFeedbackById(feedback_id);
 
@@ -70,6 +81,11 @@ exports.getFeedbackById = async function (req, res) {
                 .json({
                     message: `Feedback ID ${feedback_id} does not exist`
                 });
+        }
+
+        if (user_role === UserTypes.User && (feedback['author']?.id !== user_id || !feedback['author'])) {
+            return res
+                .sendStatus(404);
         }
 
         return res
@@ -89,6 +105,7 @@ exports.getFeedbackById = async function (req, res) {
  */
 exports.createFeedback = async function (req, res) {
     try {
+        let {user_id} = res.locals;
         let feedback_data = FEEDBACK_CREATE_SCHEMA.validate(req.body, {
             allowUnknown: false, abortEarly: true,
         });
@@ -100,12 +117,10 @@ exports.createFeedback = async function (req, res) {
                     message: 'Malformed/Invalid request.',
                 });
 
-        await feedbacksService.createFeedback(feedback_data.value);
+        await feedbacksService.createFeedback({author: user_id, ...feedback_data.value});
 
         return res.sendStatus(201);
     } catch (e) {
-
-        console.error(e);
         return res
             .sendStatus(500);
     }

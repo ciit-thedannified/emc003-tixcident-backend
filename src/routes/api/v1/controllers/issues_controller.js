@@ -7,6 +7,7 @@ const isBoolean = require("validator/lib/isBoolean");
 const {boolean} = require("boolean");
 const {isEmpty} = require("lodash");
 const {UserTypes} = require("../../../../../utils/enums");
+const {DEFAULT_PAGINATION_PAGE, DEFAULT_PAGINATION_ITEMS} = require("../../../../../utils/constants");
 
 /**
  * Fetches all existing issues in the database.
@@ -17,7 +18,7 @@ const {UserTypes} = require("../../../../../utils/enums");
 exports.getAllIssues = async function (req, res) {
     try {
         // Pagination query parameters
-        let {page = 1, items = 10} = req.query;
+        let {page = DEFAULT_PAGINATION_PAGE, items = DEFAULT_PAGINATION_ITEMS} = req.query;
         let {user_id, user_role} = res.locals;
 
         // Getting all filters set in querying specific data.
