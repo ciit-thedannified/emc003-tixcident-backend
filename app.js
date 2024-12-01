@@ -12,6 +12,12 @@ const bodyParser = require('body-parser');
 // Main Express Application
 let app = express();
 
+const corsOptions = {
+    origin: '*', // Allow all origins (you can restrict this to specific domains)
+    methods: ['GET', 'POST', 'PUT', 'DELETE'], // Allowed methods
+    allowedHeaders: ['Content-Type', 'Authorization'], // Allowed headers
+};
+
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(logger('dev'));
@@ -19,7 +25,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
-app.use(cors());
+app.use(cors(corsOptions));
 
 getConnection();
 
