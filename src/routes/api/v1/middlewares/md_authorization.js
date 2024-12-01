@@ -115,7 +115,7 @@ exports.checkIssueAuthor = async function (req, res, next) {
         if (user_role === UserTypes.Admin)
             return next();
 
-        if (!issue || issue['author'] !== user_id) {
+        if (!issue || issue['author']['_doc'].id !== user_id) {
             return res
                 .sendStatus(403);
         }

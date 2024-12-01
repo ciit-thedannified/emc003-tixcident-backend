@@ -3,6 +3,7 @@ const {USER_SEARCH_SCHEMA, USER_CREATE_SCHEMA, USER_UPDATE_SCHEMA} = require("..
 const {filterBuilder, regexpBuilder} = require("../../../../../utils/builders");
 const FirebaseAdmin = require("../../../../firebase/firebase-admin");
 const {DEFAULT_PAGINATION_PAGE, DEFAULT_PAGINATION_ITEMS} = require("../../../../../utils/constants");
+const {USER_TYPES} = require("../../../../../utils/enums");
 
 /**
  *
@@ -12,24 +13,15 @@ const {DEFAULT_PAGINATION_PAGE, DEFAULT_PAGINATION_ITEMS} = require("../../../..
  */
 exports.getAllUsers = async function (req, res) {
     try {
-        let {page = DEFAULT_PAGINATION_PAGE, items = DEFAULT_PAGINATION_ITEMS} = req.params;
+        let {page = DEFAULT_PAGINATION_PAGE, items = DEFAULT_PAGINATION_ITEMS, type} = req.params;
 
-        let filter = USER_SEARCH_SCHEMA.validate(req.body);
-
-        if (filter.error)
+        if (!USER_TYPES.includes(type)) {
             return res
-                .status(400)
-                .send({
-                    message: 'Malformed/Invalid request.'
-                });
-
-        let _filter = filter.value;
+                .sendStatus(400)
+        }
 
         let query = filterBuilder()
-            .appendField("username", _filter?.username, username => username.length > 0 ? regexpBuilder(new RegExp(`^${username}`, 'i')) : undefined)
-            .appendField("email", _filter?.email, email => email.length > 0 ? regexpBuilder(new RegExp(`^${email}`, 'i')) : undefined)
-            .appendField("displayName", _filter?.displayName, displayName => displayName.length > 0 ? regexpBuilder(new RegExp(`^${displayName}`, 'i')) : undefined)
-            .appendField("type", _filter?.type)
+            .appendField("type", type)
             .build();
 
         let _query = await usersService.findAllUsers(query, null, {
@@ -86,7 +78,7 @@ exports.getUserById = async function (req, res) {
 exports.createUser = async (req, res) => {
     try {
         // Validate the user_credentials body if it contains all required & optional fields
-        const user_credentials = await USER_CREATE_SCHEMA.validate(req.body, {
+        const user_credentials = await USER_CREATE_SCHEMA.validate(res.locals.filter, {
             allowUnknown: false,
             abortEarly: true,
         });
@@ -119,7 +111,7 @@ exports.updateUserById = async function (req, res) {
     let {user_id} = req.params;
 
     try {
-        let user_credentials = USER_UPDATE_SCHEMA.validate(req.body, {
+        let user_credentials = USER_UPDATE_SCHEMA.validate(res.locals.filter, {
             allowUnknown: false,
             abortEarly: true,
         });

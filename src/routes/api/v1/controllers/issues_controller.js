@@ -18,22 +18,10 @@ const {DEFAULT_PAGINATION_PAGE, DEFAULT_PAGINATION_ITEMS} = require("../../../..
 exports.getAllIssues = async function (req, res) {
     try {
         // Pagination query parameters
-        let {page = DEFAULT_PAGINATION_PAGE, items = DEFAULT_PAGINATION_ITEMS} = req.query;
+        let {page = DEFAULT_PAGINATION_PAGE, items = DEFAULT_PAGINATION_ITEMS, authorId} = req.query;
         let {user_id, user_role} = res.locals;
 
-        // Getting all filters set in querying specific data.
-        let filter = ISSUE_SEARCH_SCHEMA.validate(req.body);
-
-        // Return an error if the user provided an invalid filter request.
-        if (filter.error) return res
-            .status(400)
-            .json({
-                message: 'Malformed/Invalid request.'
-            });
-
-        let _filter = filter.value;
-
-        if (user_role === UserTypes.User && (_filter?.author !== user_id || !_filter?.author)) {
+        if (user_role === UserTypes.User && (authorId !== user_id)) {
             return res
                 .status(403)
                 .json({
@@ -43,14 +31,7 @@ exports.getAllIssues = async function (req, res) {
 
         // Building the query filter before requesting data.
         let query = filterBuilder()
-            .appendField("author", _filter?.author)
-            .appendField("staff", _filter?.staff)
-            .appendField("priority", _filter?.priority)
-            .appendField("tags", _filter?.tags, (value) => value !== undefined && value.length > 0 ? {$in: _filter?.tags} : undefined)
-            .appendField("status", _filter?.status)
-            .appendField("title", _filter?.title, (value) => value !== undefined ? regexpBuilder(new RegExp(`^${value}`, 'i')) : undefined)
-            .appendField("type", _filter?.type)
-            .appendField("createdAt", dateRangeBuilder(_filter?.fromDate, _filter?.toDate), value => !isEmpty(value) ? value : undefined)
+            .appendField("author", authorId)
             .build();
 
         let _query = await issuesService.findAllIssues(query, null, {
@@ -78,8 +59,8 @@ exports.getAllIssues = async function (req, res) {
  */
 exports.getIssueById = async function (req, res) {
     try {
-        let {issue_id} = res.locals;
         let {user_id, user_role} = res.locals;
+        let {issue_id} = req.query;
 
         // Querying specific issue by id
         let issue = await issuesService.findIssueById(issue_id);
@@ -91,7 +72,7 @@ exports.getIssueById = async function (req, res) {
                     message: `Issue ID ${issue_id} does not exist.`,
                 });
 
-        if (user_role === UserTypes.User && (issue['author']?.id !== user_id || !issue['author'])) {
+        if (user_role === UserTypes.User && issue['author']?.id !== user_id) {
             return res
                 .sendStatus(404);
         }
@@ -123,7 +104,7 @@ exports.getIssueById = async function (req, res) {
  */
 exports.createIssue = async function (req, res) {
     try {
-        let issue_data = ISSUE_CREATE_SCHEMA.validate(req.body, {
+        let issue_data = ISSUE_CREATE_SCHEMA.validate(res.locals.filter, {
             allowUnknown: false, abortEarly: true,
         });
         let {user_id} = res.locals;
@@ -135,9 +116,13 @@ exports.createIssue = async function (req, res) {
                     message: 'Malformed/Invalid request.',
                 });
 
-        await issuesService.createIssue({author: user_id, ...issue_data.value});
+        let issue = await issuesService.createIssue({author: user_id, ...issue_data.value});
 
-        return res.sendStatus(201);
+        return res
+            .status(201)
+            .json({
+                id: issue._id,
+            });
     } catch (e) {
         return res
             .sendStatus(500);
@@ -153,7 +138,7 @@ exports.createIssue = async function (req, res) {
 exports.updateIssueById = async function (req, res) {
     try {
         let {issue_id} = req.params;
-        let issue_update = ISSUE_UPDATE_SCHEMA.validate(req.body);
+        let issue_update = ISSUE_UPDATE_SCHEMA.validate(res.locals.filter);
         let update;     // Holds 'issue_update.value'
         let _update;    // Building filterBuilder for 'update'
 
@@ -193,7 +178,7 @@ exports.updateIssueById = async function (req, res) {
  */
 exports.updateManyIssues = async function (req, res) {
     try {
-        let payload = ISSUE_BULK_UPDATE_SCHEMA.validate(req.body, {
+        let payload = ISSUE_BULK_UPDATE_SCHEMA.validate(res.locals.filter, {
             allowUnknown: false, abortEarly: true,
         });
         let update;
@@ -278,7 +263,7 @@ exports.deleteManyIssues = async function (req, res) {
                     message: "'hardDelete' must be a boolean value."
                 });
 
-        payload = ISSUE_BULK_DELETE_SCHEMA.validate(req.body, {
+        payload = ISSUE_BULK_DELETE_SCHEMA.validate(res.locals.filter, {
             allowUnknown: false, abortEarly: true,
         });
 

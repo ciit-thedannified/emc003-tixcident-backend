@@ -19,36 +19,14 @@ const {DEFAULT_PAGINATION_PAGE, DEFAULT_PAGINATION_ITEMS} = require("../../../..
 exports.getAllFeedbacks = async function (req, res) {
     try {
         let {page = DEFAULT_PAGINATION_PAGE, items = DEFAULT_PAGINATION_ITEMS} = req.query;
-        let {user_id, user_role} = res.locals;
+        let {user_role} = res.locals;
 
-        let filter = FEEDBACK_SEARCH_SCHEMA.validate(req.body);
-
-        if (filter.error)
+        if (user_role !== UserTypes.User) {
             return res
-                .status(400)
-                .json({
-                    message: 'Malformed/Invalid request.'
-                });
-
-        let _filter = filter.value;
-
-        if (user_role === UserTypes.User && (_filter?.author !== user_id || !_filter?.author)) {
-            return res
-                .status(403)
-                .json({
-                    message: "User can only request their own feedback documents."
-                });
+                .sendStatus(403);
         }
 
-        let query = filterBuilder()
-            .appendField("author", _filter?.author)
-            .appendField("title", _filter?.title, (value) => value !== undefined ? regexpBuilder(new RegExp(`^${value}`, 'i')) : undefined)
-            .appendField("type", _filter?.type)
-            .appendField("rating", _filter?.rating)
-            .appendField("createdAt", dateRangeBuilder(_filter?.fromDate, _filter?.toDate), value => !isEmpty(value) ? value : undefined)
-            .build();
-
-        let _query = await feedbacksService.findAllFeedbacks(query, null, {
+        let _query = await feedbacksService.findAllFeedbacks(null, null, {
             skip: (page - 1) * items,
             limit: items,
         });
@@ -106,7 +84,7 @@ exports.getFeedbackById = async function (req, res) {
 exports.createFeedback = async function (req, res) {
     try {
         let {user_id} = res.locals;
-        let feedback_data = FEEDBACK_CREATE_SCHEMA.validate(req.body, {
+        let feedback_data = FEEDBACK_CREATE_SCHEMA.validate(res.locals.filter, {
             allowUnknown: false, abortEarly: true,
         });
 
@@ -167,7 +145,7 @@ exports.deleteManyFeedbacks = async function (req, res) {
                     message: "'hardDelete' must be a boolean value."
                 });
 
-        payload = FEEDBACK_BULK_DELETE_SCHEMA.validate(req.body, {
+        payload = FEEDBACK_BULK_DELETE_SCHEMA.validate(res.locals.filter, {
             allowUnknown: false, abortEarly: true,
         });
 

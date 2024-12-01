@@ -181,7 +181,8 @@ const ISSUE_BULK_DELETE_SCHEMA = Joi.object({
 })
 
 /// JOI FEEDBACK SCHEMA
-const FEEDBACK_CREATE_SCHEMA = Joi.object({
+const
+    FEEDBACK_CREATE_SCHEMA = Joi.object({
     /*author: Joi.string()
         .alphanum()
         .required(),*/

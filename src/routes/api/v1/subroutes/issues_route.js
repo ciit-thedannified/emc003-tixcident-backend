@@ -18,12 +18,12 @@ API_V1_ISSUES.use(getUserRole);
 /**
  * Fetches all issue data in pagination format. (with filtering support)
  */
-API_V1_ISSUES.get('/', issuesController.getAllIssues);
+API_V1_ISSUES.get('/all', issuesController.getAllIssues);
 
 /**
  * Fetches a specific issue document
  */
-API_V1_ISSUES.get('/:issue_id', issuesController.getIssueById);
+API_V1_ISSUES.get('/', issuesController.getIssueById);
 
 /**
  * Create a new issue

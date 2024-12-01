@@ -12,18 +12,23 @@ const API_V1_USERS = Router({
     caseSensitive: true,
 });
 
-API_V1_USERS.use(verifyToken);
-API_V1_USERS.use(getUserRole);
+
+API_V1_USERS.use([verifyToken, getUserRole]);
 
 /**
  * Fetches all account details with pagination
  */
-API_V1_USERS.get('/', usersController.getAllUsers);
+API_V1_USERS.get('/all', usersController.getAllUsers);
 
 /**
  * Fetches the account details of a specific user
  */
 API_V1_USERS.get('/:user_id', usersController.getUserById);
+
+/**
+ *
+ */
+API_V1_USERS.post('/signup', usersController.createUser);
 
 /**
  * Creates a new user data in the application.
