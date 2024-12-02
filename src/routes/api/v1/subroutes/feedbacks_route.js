@@ -16,7 +16,7 @@ const API_V1_FEEDBACKS = Router({
 API_V1_FEEDBACKS.use(verifyToken);
 API_V1_FEEDBACKS.use(getUserRole);
 
-API_V1_FEEDBACKS.get('/', feedbacksController.getAllFeedbacks);
+API_V1_FEEDBACKS.get('/all', feedbacksController.getAllFeedbacks);
 
 API_V1_FEEDBACKS.get(`/:feedback_id`, feedbacksController.getFeedbackById);
 

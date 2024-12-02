@@ -69,7 +69,7 @@ exports.getIssueMessageById = async function (req, res) {
 exports.createIssueMessage = async function (req, res) {
     try {
         let issue_id = res.locals.issue_id;
-        let message_data = ISSUE_MESSAGE_CREATE_SCHEMA.validate(res.locals.filter);
+        let message_data = ISSUE_MESSAGE_CREATE_SCHEMA.validate(req.body);
 
         if (message_data.error)
             return res

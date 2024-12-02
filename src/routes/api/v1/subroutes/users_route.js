@@ -38,7 +38,7 @@ API_V1_USERS.post('/', checkAdminRole, usersController.createUser);
 /**
  *
  */
-API_V1_USERS.patch('/:user_id', checkAdminRole, usersController.updateUserById);
+API_V1_USERS.patch('/:user_id', usersController.updateUserById);
 
 /**
  *

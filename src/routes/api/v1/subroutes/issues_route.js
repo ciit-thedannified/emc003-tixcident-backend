@@ -23,7 +23,7 @@ API_V1_ISSUES.get('/all', issuesController.getAllIssues);
 /**
  * Fetches a specific issue document
  */
-API_V1_ISSUES.get('/', issuesController.getIssueById);
+API_V1_ISSUES.get('/:issue_id', issuesController.getIssueById);
 
 /**
  * Create a new issue

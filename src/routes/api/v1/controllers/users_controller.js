@@ -3,7 +3,7 @@ const {USER_SEARCH_SCHEMA, USER_CREATE_SCHEMA, USER_UPDATE_SCHEMA} = require("..
 const {filterBuilder, regexpBuilder} = require("../../../../../utils/builders");
 const FirebaseAdmin = require("../../../../firebase/firebase-admin");
 const {DEFAULT_PAGINATION_PAGE, DEFAULT_PAGINATION_ITEMS} = require("../../../../../utils/constants");
-const {USER_TYPES} = require("../../../../../utils/enums");
+const {USER_TYPES, UserTypes} = require("../../../../../utils/enums");
 
 /**
  *
@@ -13,9 +13,13 @@ const {USER_TYPES} = require("../../../../../utils/enums");
  */
 exports.getAllUsers = async function (req, res) {
     try {
-        let {page = DEFAULT_PAGINATION_PAGE, items = DEFAULT_PAGINATION_ITEMS, type} = req.params;
+        let {page = DEFAULT_PAGINATION_PAGE, items = DEFAULT_PAGINATION_ITEMS, type = "ALL"} = req.params;
+        let {user_role} = res.locals;
 
-        if (!USER_TYPES.includes(type)) {
+        if (user_role === UserTypes.Admin && type.toUpperCase() === "ALL") {
+            type = USER_TYPES;
+        }
+        else if (!USER_TYPES.includes(type.toUpperCase())) {
             return res
                 .sendStatus(400)
         }
@@ -78,7 +82,7 @@ exports.getUserById = async function (req, res) {
 exports.createUser = async (req, res) => {
     try {
         // Validate the user_credentials body if it contains all required & optional fields
-        const user_credentials = await USER_CREATE_SCHEMA.validate(res.locals.filter, {
+        const user_credentials = await USER_CREATE_SCHEMA.validate(req.body, {
             allowUnknown: false,
             abortEarly: true,
         });
@@ -91,7 +95,7 @@ exports.createUser = async (req, res) => {
                     message: 'Malformed/Invalid request.',
                 });
 
-        await usersService.createUser(user_credentials);
+        await usersService.createUser(user_credentials.value);
 
         return res
             .sendStatus(201);
@@ -109,9 +113,10 @@ exports.createUser = async (req, res) => {
  */
 exports.updateUserById = async function (req, res) {
     let {user_id} = req.params;
+    let {user_role} = res.locals;
 
     try {
-        let user_credentials = USER_UPDATE_SCHEMA.validate(res.locals.filter, {
+        let user_credentials = USER_UPDATE_SCHEMA.validate(req.body, {
             allowUnknown: false,
             abortEarly: true,
         });
@@ -124,7 +129,15 @@ exports.updateUserById = async function (req, res) {
                     message: user_credentials.error.details[0].message,
                 });
 
-        await usersService.updateUserById(user_id, user_credentials);
+        if (user_credentials.value.type && user_role !== UserTypes.Admin) {
+            return res
+                .status(403)
+                .json({
+                    message: "Users cannot change their user type."
+                });
+        }
+
+        await usersService.updateUserById(user_id, user_credentials.value);
 
         return res
             .sendStatus(204)

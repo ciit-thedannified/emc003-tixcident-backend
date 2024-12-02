@@ -5,7 +5,6 @@ const {filterBuilder, regexpBuilder, dateRangeBuilder} = require("../../../../..
 const issuesService = require("../services/issues_service.js");
 const isBoolean = require("validator/lib/isBoolean");
 const {boolean} = require("boolean");
-const {isEmpty} = require("lodash");
 const {UserTypes} = require("../../../../../utils/enums");
 const {DEFAULT_PAGINATION_PAGE, DEFAULT_PAGINATION_ITEMS} = require("../../../../../utils/constants");
 
@@ -60,7 +59,7 @@ exports.getAllIssues = async function (req, res) {
 exports.getIssueById = async function (req, res) {
     try {
         let {user_id, user_role} = res.locals;
-        let {issue_id} = req.query;
+        let {issue_id} = req.params;
 
         // Querying specific issue by id
         let issue = await issuesService.findIssueById(issue_id);
@@ -104,7 +103,7 @@ exports.getIssueById = async function (req, res) {
  */
 exports.createIssue = async function (req, res) {
     try {
-        let issue_data = ISSUE_CREATE_SCHEMA.validate(res.locals.filter, {
+        let issue_data = ISSUE_CREATE_SCHEMA.validate(req.body, {
             allowUnknown: false, abortEarly: true,
         });
         let {user_id} = res.locals;
@@ -138,7 +137,7 @@ exports.createIssue = async function (req, res) {
 exports.updateIssueById = async function (req, res) {
     try {
         let {issue_id} = req.params;
-        let issue_update = ISSUE_UPDATE_SCHEMA.validate(res.locals.filter);
+        let issue_update = ISSUE_UPDATE_SCHEMA.validate(req.body);
         let update;     // Holds 'issue_update.value'
         let _update;    // Building filterBuilder for 'update'
 
@@ -178,7 +177,7 @@ exports.updateIssueById = async function (req, res) {
  */
 exports.updateManyIssues = async function (req, res) {
     try {
-        let payload = ISSUE_BULK_UPDATE_SCHEMA.validate(res.locals.filter, {
+        let payload = ISSUE_BULK_UPDATE_SCHEMA.validate(req.body, {
             allowUnknown: false, abortEarly: true,
         });
         let update;
@@ -263,7 +262,7 @@ exports.deleteManyIssues = async function (req, res) {
                     message: "'hardDelete' must be a boolean value."
                 });
 
-        payload = ISSUE_BULK_DELETE_SCHEMA.validate(res.locals.filter, {
+        payload = ISSUE_BULK_DELETE_SCHEMA.validate(req.body, {
             allowUnknown: false, abortEarly: true,
         });
 

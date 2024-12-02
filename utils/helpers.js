@@ -146,7 +146,8 @@ const ISSUE_SEARCH_SCHEMA = Joi.object({
 
 const ISSUE_UPDATE_SCHEMA = Joi.object({
     staff: Joi.string()
-        .alphanum(),
+        .alphanum()
+        .optional(),
 
     priority: Joi.string()
         .valid(...PRIORITY_TYPES),

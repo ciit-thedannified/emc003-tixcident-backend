@@ -21,7 +21,7 @@ exports.getAllFeedbacks = async function (req, res) {
         let {page = DEFAULT_PAGINATION_PAGE, items = DEFAULT_PAGINATION_ITEMS} = req.query;
         let {user_role} = res.locals;
 
-        if (user_role !== UserTypes.User) {
+        if (user_role !== UserTypes.Admin) {
             return res
                 .sendStatus(403);
         }
@@ -84,7 +84,7 @@ exports.getFeedbackById = async function (req, res) {
 exports.createFeedback = async function (req, res) {
     try {
         let {user_id} = res.locals;
-        let feedback_data = FEEDBACK_CREATE_SCHEMA.validate(res.locals.filter, {
+        let feedback_data = FEEDBACK_CREATE_SCHEMA.validate(req.body, {
             allowUnknown: false, abortEarly: true,
         });
 
@@ -145,7 +145,7 @@ exports.deleteManyFeedbacks = async function (req, res) {
                     message: "'hardDelete' must be a boolean value."
                 });
 
-        payload = FEEDBACK_BULK_DELETE_SCHEMA.validate(res.locals.filter, {
+        payload = FEEDBACK_BULK_DELETE_SCHEMA.validate(req.body, {
             allowUnknown: false, abortEarly: true,
         });
 
